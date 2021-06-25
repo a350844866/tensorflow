@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package tensorflow.tfprof;
+option go_package = "github.com/tensorflow/tensorflow/tensorflow/go/core/profiler/tfprof_log_go_proto";
 
 import "tensorflow/core/framework/attr_value.proto";
 import "tensorflow/core/framework/step_stats.proto";
@@ -54,6 +55,9 @@ message ProfileProto {
   map<int64, ProfileNode> nodes = 1;
   // Whether or not has code traces.
   bool has_trace = 2;
+  // Whether or not the TF device tracer fails to return accelerator
+  // information (which could lead to 0 accelerator execution time).
+  bool miss_accelerator_stream = 5;
   // Traced steps.
   repeated int64 steps = 3;
 

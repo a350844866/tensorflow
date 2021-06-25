@@ -26,9 +26,10 @@ namespace grappler {
 
 ModelAnalyzer::ModelAnalyzer(const GrapplerItem& item) : item_(item) {}
 
-Status ModelAnalyzer::GenerateReport(bool debug, std::ostream& os) {
+Status ModelAnalyzer::GenerateReport(bool debug, bool assume_valid_feeds,
+                                     std::ostream& os) {
   GraphProperties properties(item_);
-  TF_RETURN_IF_ERROR(properties.InferStatically(false));
+  TF_RETURN_IF_ERROR(properties.InferStatically(assume_valid_feeds));
 
   for (const auto& node : item_.MainOpsFanin()) {
     PrintNodeInfo(node, properties, debug, os);
@@ -47,7 +48,7 @@ void ModelAnalyzer::PrintNodeInfo(const NodeDef* node,
   if (properties.HasOutputProperties(node->name())) {
     const std::vector<OpInfo::TensorProperties>& props =
         properties.GetOutputProperties(node->name());
-    for (int i = 0; i < props.size(); ++i) {
+    for (int i = 0, props_size = props.size(); i < props_size; ++i) {
       const OpInfo::TensorProperties& prop = props[i];
       os << "\t"
          << "output " << i << " (" << DataTypeString(prop.dtype())
@@ -87,7 +88,7 @@ void ModelAnalyzer::PrintNodeInfo(const NodeDef* node,
     } else if (properties.HasInputProperties(node->name())) {
       const std::vector<OpInfo::TensorProperties>& props =
           properties.GetInputProperties(node->name());
-      for (int i = 0; i < props.size(); ++i) {
+      for (int i = 0, props_size = props.size(); i < props_size; ++i) {
         const OpInfo::TensorProperties& prop = props[i];
         if (prop.has_value()) {
           os << "\t"
